@@ -1,17 +1,43 @@
 # Bachelor-Tools
 
-A small collections of python scripts used to work with `.yaml` files in connection with my Bachelor Thesis.
+A small collection of Python scripts used to process `.yaml` files for my Bachelor's thesis.
 
-## Usage
+All scripts are located in the [`src`](src) directory.
 
+⚠️ These scripts assume that the YAML files follow the expected structure. Incorrectly formatted files may cause errors.
+
+
+## count_hcp.py
+
+Counts the number of HCP entries in a YAML file.
+
+### Usage
 ```bash
-python3 <path/to/python_script> <path/to/file.yaml>
+python3 src/coun_hcp.py <path/to/file.yaml>
 ```
 
-## Scripts
 
-The scripts are all located in the directory [src](src).
+## remove_tagged.py
 
-1. `count_hcp.py`: Counts the HCPs, only differentiates between tagged and untagged entries.
+Removes all HCP entries that contain tags, or only entries with specific tags.
 
-3. `remove_tagged.py`: Creates new file with only untagged HCPs.
+The script does not modify the original file. Instead, it writes the filtered output to a new file in the `output` directory.
+
+If the directory does not exist, it will be created automatically.
+
+### Usage
+```bash
+python3 remove_tagged.py <path/to/file.yaml> [<tag1> <tag2> ...]
+```
+
+
+## hcp_to_location.py
+
+Extracts the locations from a HCP list and creates a new file holding these locations. The locations that are put out are in format `file:lineno:colno_start-lineno:colno_end`. 
+
+The file is put in the `output` directory. If the directory does not exist, it will be created automatically.
+
+### Usage
+```bash
+python3 hcp_to_location.py <path/to/file.yaml>
+```
