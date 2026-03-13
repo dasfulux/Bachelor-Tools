@@ -41,3 +41,23 @@ The file is put in the `output` directory. If the directory does not exist, it w
 ```bash
 python3 hcp_to_location.py <path/to/file.yaml>
 ```
+
+
+# TODO
+
+Rougth TODO section.
+
+## pipeline.py
+
+Takes a yaml list of HCPs, then runs all scripts over them, in a way that it can be automated.
+
+1. count
+2. filter
+3. locations
+4. FMstimator
+5. Graph
+
+
+## graph.py
+
+Creates graphs from the location historys produced by the FMstimator using `matplotlib`.
