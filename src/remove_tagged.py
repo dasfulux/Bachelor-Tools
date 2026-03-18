@@ -1,29 +1,23 @@
+import argparse
 import os
-import sys
 import yaml
 
-"""
-Remove entries with specific tags from YAML lists and save the cleaned data to new files.
-"""
+
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: python3 <python_script> <filepath> [<tag1> <tag2> ...]")
-        sys.exit(1)
-    
-    filepath = sys.argv[1]
+    """
+    Remove entries with specific tags from YAML lists and save the cleaned data to new files.
+    """
+    args = parse_args()
 
     try:
+        filepath = args.filepath
         with open(filepath, 'r') as f:
             data = yaml.safe_load(f)
     except Exception as e:
         print(f"Error: {e}")
-        sys.exit(1)
+        raise SystemExit(1)
 
-    if len(sys.argv) < 3:
-        tags_to_remove = []  # No tags specified, remove all tagged entries
-    else:
-        tags_to_remove = sys.argv[2:]  # Tags specified as command-line arguments; overkill but fancy
-
+    tags_to_remove = args.tags
     filtered_data = {}
     for key, value in data.items():
         if isinstance(value, list):
@@ -33,7 +27,7 @@ def main():
                     filtered_list.append(entry)
                     continue
 
-                entry_tags = entry.get('tags', []) or []
+                entry_tags = entry.get("tags", []) or []
                 if tags_to_remove:
                     if any(tag in tags_to_remove for tag in entry_tags):
                         continue
@@ -46,18 +40,48 @@ def main():
         else:
             filtered_data[key] = value
 
-    base = os.path.basename(filepath)
-    name, ext = os.path.splitext(base)
-    if tags_to_remove:
-        new_name = f"{name}_filtered_{tags_to_remove}{ext}"
-    else:
-        new_name = f"{name}_filtered_all{ext}"
-    out_path = os.path.join('src/output', new_name)
-
-    os.makedirs('src/output', exist_ok=True)
+    out_path = args.output
+    out_dir = os.path.dirname(out_path)
+    if out_dir:
+        # Create output directory if not yet present
+        os.makedirs(out_dir, exist_ok=True)
 
     with open(out_path, 'w') as f:
         yaml.safe_dump(filtered_data, f, sort_keys=False)
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Remove entries with specific tags from YAML lists."
+    )
+    
+    parser.add_argument("filepath", help="Path to the input YAML file")
+    parser.add_argument(
+        "tags",
+        nargs="*",
+        help="Tags to remove. If omitted, all tagged entries are removed.",
+    )
+    parser.add_argument(
+        "-o",
+        "--output",
+        default=None,
+        help="Path to output file. If omitted, a name is auto-generated in src/output/.",
+    )
+
+    args = parser.parse_args()
+
+    # Default to src/output/
+    if args.output is None:
+        base = os.path.basename(args.filepath)
+        name, ext = os.path.splitext(base)
+        if args.tags:
+            tag_part = "_".join(args.tags)
+            new_name = f"{name}_filtered_{tag_part}{ext}"
+        else:
+            new_name = f"{name}_filtered_all{ext}"
+        args.output = os.path.join("src/output", new_name)
+
+    return args
 
 
 if __name__ == "__main__":
