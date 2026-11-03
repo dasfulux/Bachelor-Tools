@@ -2,11 +2,9 @@ import argparse
 import os
 import yaml
 
+literal_cnt = 0
 
 def main():
-    """
-    Takes a yaml list, and creates a new list with only the locations.
-    """
     args = parse_args()
 
     try:
@@ -21,32 +19,42 @@ def main():
     for value in data.values():
         for hcp in value:
             location = hcp.get('Location')
-            varname = hcp.get('VarName', "")
+            varname = hcp.get('VarName', gen_literal_name())
             vartype = hcp.get('Type', "")
 
             if location:
                 filename = location.get('Filename', None)
                 lineno = location.get('Lineno', None)
 
-                colno_start = location.get('Colno', None)
+                if "LiteralBinOp" in varname:
+                    colno_start = 1
+                else:
+                    colno_start = location.get('Colno', None)
                 colno_end = colno_start + len(varname)  + len(vartype)
 
-                path = f"{filename}:{lineno}:{colno_start}-{lineno}:{colno_end}"
+                path = f"{filename}:{lineno}:{colno_start}-{lineno}:{colno_end+2}"
                 locations.append({
                     "VarName": varname,
-                    "Location": path
+                    "Location": path,
                 })
             else:
                 print(f"Error: Not a valid location - {hcp}")
 
     out_path = args.output
     out_dir = os.path.dirname(out_path)
+
     if out_dir:
-        # Create output directory if not yet present
         os.makedirs(out_dir, exist_ok=True)
 
     with open(out_path, 'w') as f:
         yaml.safe_dump(locations, f, sort_keys=False)
+
+
+def gen_literal_name():
+    global literal_cnt
+    literal_name = f"LiteralBinOp{literal_cnt}"
+    literal_cnt += 1
+    return literal_name
 
 
 def parse_args():
@@ -55,6 +63,7 @@ def parse_args():
     )
     
     parser.add_argument("filepath", help="Path to the input YAML file")
+    parser.add_argument("-n", "--name", help="Name to give the file")
     parser.add_argument(
         "-o",
         "--output",
