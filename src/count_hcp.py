@@ -3,10 +3,6 @@ import yaml
 
 
 def main():
-    """
-    Count total and untagged entries in YAML lists.
-    Does not count by tags.
-    """
     args = parse_args()
  
     try:
@@ -19,7 +15,7 @@ def main():
     
     lists_to_count = {key: value for key, value in data.items() if isinstance(value, list)}
     overall_total = sum(len(entries) for entries in lists_to_count.values())
-    overall_untagged = sum(1 for entries in lists_to_count.values() for entry in entries if not entry.get('tags'))
+    overall_untagged = sum(1 for entries in lists_to_count.values() for entry in entries if entry.get('tags') and 'conf_opp' in entry.get('tags'))
 
     print(f"Total entries: {overall_total}\n")
     print(f"Untagged entries: {overall_untagged}\n")
