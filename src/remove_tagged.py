@@ -4,9 +4,6 @@ import yaml
 
 
 def main():
-    """
-    Remove entries with specific tags from YAML lists and save the cleaned data to new files.
-    """
     args = parse_args()
 
     try:
@@ -17,7 +14,6 @@ def main():
         print(f"Error: {e}")
         raise SystemExit(1)
 
-    tags_to_remove = args.tags
     filtered_data = {}
     for key, value in data.items():
         if isinstance(value, list):
@@ -28,12 +24,8 @@ def main():
                     continue
 
                 entry_tags = entry.get("tags", []) or []
-                if tags_to_remove:
-                    if any(tag in tags_to_remove for tag in entry_tags):
-                        continue
-                else:
-                    if entry_tags:
-                        continue
+                if entry_tags and 'conf_opp' not in entry_tags:
+                    continue
                 filtered_list.append(entry)
 
             filtered_data[key] = filtered_list
@@ -55,12 +47,7 @@ def parse_args():
         description="Remove entries with specific tags from YAML lists."
     )
     
-    parser.add_argument("filepath", help="Path to the input YAML file")
-    parser.add_argument(
-        "tags",
-        nargs="*",
-        help="Tags to remove. If omitted, all tagged entries are removed.",
-    )
+    parser.add_argument("filepath", help="Path to the input YAML file")  
     parser.add_argument(
         "-o",
         "--output",
@@ -74,11 +61,7 @@ def parse_args():
     if args.output is None:
         base = os.path.basename(args.filepath)
         name, ext = os.path.splitext(base)
-        if args.tags:
-            tag_part = "_".join(args.tags)
-            new_name = f"{name}_filtered_{tag_part}{ext}"
-        else:
-            new_name = f"{name}_filtered_all{ext}"
+        new_name = f"{name}_filtered_all{ext}"
         args.output = os.path.join("src/output", new_name)
 
     return args
