@@ -13,7 +13,7 @@ Counts the number of HCP entries in a YAML file.
 
 ### Usage
 ```bash
-python3 src/coun_hcp.py <path/to/file.yaml>
+python3 src/count_hcp.py <path/to/file.yaml>
 ```
 
 
@@ -46,6 +46,10 @@ python3 hcp_to_location.py <path/to/file.yaml>
 # TODO
 
 Rougth TODO section.
+
+## outputs
+
+Possibility for custom output directory for `remove_tagged.py` and `hcp_to_location.py`.
 
 ## pipeline.py
 
